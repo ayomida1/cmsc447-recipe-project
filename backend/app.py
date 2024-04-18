@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize Flask app and configure CORS and database
 app = Flask(__name__)
@@ -23,6 +24,14 @@ class Users(db.Model):
     user_pass = db.Column(db.String(100))
     user_email = db.Column(db.String(100))
     user_admin = db.Column(db.Boolean, default=False)
+
+    # Function to set password
+    def set_password(self, password):
+        self.user_pass = generate_password_hash(password)
+
+    # Function to check for password match
+    def check_password(self, password):
+        return check_password_hash(self.user_pass, password)
 
 class Recipes(db.Model):
     recipe_id = db.Column(db.Integer, primary_key=True)
