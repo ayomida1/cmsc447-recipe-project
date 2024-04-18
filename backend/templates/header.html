@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %} 
+
+<div class="jumbotron p-3">
+    <div class="container"> 
+      <h1 class="display-3">CMSC447 CRUD App</h1>
+      <p>by Jacky Le</p>  
+  
+      <div class="row">
+          <div class="col-md-3">
+              <a href="{{ url_for('students') }}" class="btn btn-primary btn-lg">Manage Students</a>
+          </div>
+          <div class="col-md-3">
+              <a href="{{ url_for('instructors') }}" class="btn btn-primary btn-lg">Manage Instructors</a>
+          </div>
+          <div class="col-md-3">
+              <a href="{{ url_for('courses') }}" class="btn btn-primary btn-lg">Manage Courses</a>
+          </div>
+          <div class="col-md-3">
+            <a href="{{ url_for('grades') }}" class="btn btn-primary btn-lg">Manage Grades</a>
+        </div>
+      </div>
+    </div> 
+  </div>
+  
+{% endblock %}
+
+ 
