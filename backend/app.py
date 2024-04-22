@@ -67,21 +67,21 @@ def add_admin_user():
         print("Admin user already exists")
 
 # Route to retrieve a recipe by ID
-@app.route('/recipe/<int:recipe_id>', methods=['GET'])
-def get_recipe(recipe_id):
-    recipe = Recipes.query.filter_by(recipe_id=recipe_id).first()
-    if recipe:
-        recipe_data = {
+@app.route('/recipes', methods=['GET'])
+def get_recipes():
+    try:
+        recipes = Recipes.query.all()
+        recipes_data = [{
             "id": recipe.recipe_id,
             "name": recipe.recipe_name,
             "description": recipe.recipe_description,
             "ingredients": recipe.recipe_ingredients,
             "instructions": recipe.recipe_instructions,
-            "user_id": recipe.user_id
-        }
-        return jsonify(recipe_data)
-    else:
-        return jsonify({"error": "Recipe not found"}), 404
+           # "user_id": recipe.user_id ADD BACK LATER
+        } for recipe in recipes]
+        return jsonify(recipes_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 # Route to add a new recipe
 @app.route('/add_recipe', methods=['POST'])
