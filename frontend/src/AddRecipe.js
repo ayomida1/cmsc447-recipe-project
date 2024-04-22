@@ -62,7 +62,7 @@ function AddRecipe() {
             />
 
             <label htmlFor="description">Description:</label>
-            <textarea
+            <input
                 id="description"
                 name="description"
                 value={formData.description}
@@ -72,7 +72,7 @@ function AddRecipe() {
             />
 
             <label htmlFor="ingredients">Ingredients:</label>
-            <textarea
+            <input
                 id="ingredients"
                 name="ingredients"
                 value={formData.ingredients}
@@ -82,7 +82,7 @@ function AddRecipe() {
             />
 
             <label htmlFor="instructions">Instructions:</label>
-            <textarea
+            <input
                 id="instructions"
                 name="instructions"
                 value={formData.instructions}
