@@ -1,97 +1,74 @@
 import React, { useState } from 'react';
 
-function AddRecipe() {
+function AddRecipe({ onAddRecipe, onCancel }) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         ingredients: '',
-        instructions: '',
-      //  user_id: 0  // Assuming a static user_id for now; adjust as needed
+        instructions: ''
     });
 
-    // Function to update state with form input
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Function to handle form submission
-    const handleSubmit = (event) => {
-        event.preventDefault(); // Prevent default form submission behavior
-        console.log('Submitting:', formData);  // Optional: Log the data being submitted
-
-        // Perform the POST request to the backend
-        console.log(JSON.stringify(formData)); //REMOVE LATERS
-        fetch('http://localhost:5000/add_recipe', {
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const response = await fetch('http://localhost:5000/add_recipe', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok, status: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message); // Show success message from server
-        })
-        .catch(error => {
-            console.error('Error adding recipe:', error);
-            alert('Error adding recipe: ' + error.message); // Show error message
         });
+        if (response.ok) {
+            onAddRecipe(formData);
+            setFormData({ name: '', description: '', ingredients: '', instructions: '' }); // Reset form
+        } else {
+            alert('Failed to add recipe');
+        }
     };
 
-    // JSX for the component
+    const handleCancel = () => {
+        setFormData({ name: '', description: '', ingredients: '', instructions: '' }); // Reset form
+        onCancel(); // Call onCancel to hide the form
+    };
+
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="name">Recipe Name:</label>
+        <form className="add-recipe-form" onSubmit={handleSubmit}>
+            <h2>Add a New Recipe</h2>
             <input
                 type="text"
-                id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter recipe name"
+                placeholder="Recipe Name"
                 required
             />
-
-            <label htmlFor="description">Description:</label>
-            <input
-                id="description"
+            <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe the recipe"
+                placeholder="Description"
                 required
             />
-
-            <label htmlFor="ingredients">Ingredients:</label>
-            <input
-                id="ingredients"
+            <textarea
                 name="ingredients"
                 value={formData.ingredients}
                 onChange={handleChange}
-                placeholder="List ingredients"
+                placeholder="Ingredients"
                 required
             />
-
-            <label htmlFor="instructions">Instructions:</label>
-            <input
-                id="instructions"
+            <textarea
                 name="instructions"
                 value={formData.instructions}
                 onChange={handleChange}
-                placeholder="Cooking instructions"
+                placeholder="Instructions"
                 required
             />
-
-            <button type="submit">Add Recipe</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <button type="submit">Add Recipe</button>
+                <button type="button" onClick={handleCancel} style={{ background: '#f44336', borderColor: '#f44336' }}>Cancel</button>
+            </div>
         </form>
     );
 }

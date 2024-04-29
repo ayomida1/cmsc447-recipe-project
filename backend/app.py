@@ -4,7 +4,8 @@ from flask_cors import CORS
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
 from werkzeug.security import generate_password_hash, check_password_hash
-#from search import searchRecipes
+from search import indexRecipe #for elasticsearch indexing
+from search import searchRecipes
 
 # Initialize Flask app and configure CORS and database
 app = Flask(__name__)
@@ -72,7 +73,16 @@ def search():
     query = request.args.get('query', '')  # Get the search term from query parameters
     if query:
         recipe_ids = searchRecipes(query)
-        return jsonify(recipe_ids)
+        # Assuming you want to return full recipe details, not just IDs:
+        recipes = Recipes.query.filter(Recipes.recipe_id.in_(recipe_ids)).all()
+        recipes_data = [{
+            "id": recipe.recipe_id,
+            "name": recipe.recipe_name,
+            "description": recipe.recipe_description,
+            "ingredients": recipe.recipe_ingredients,
+            "instructions": recipe.recipe_instructions
+        } for recipe in recipes]
+        return jsonify(recipes_data)
     else:
         return jsonify([]), 400  # Bad request if no query provided
     
@@ -111,11 +121,30 @@ def add_recipe():
         db.session.commit()
         response_data = {"message": "Recipe added successfully"}
         print("Sending response:", response_data)  # Debug print
+
+        # Index the new recipe in Elasticsearch
+        indexRecipe(str(new_recipe.recipe_id), new_recipe.recipe_name)
+
         return jsonify(response_data), 201
     except Exception as e:
         error_message = {"error": str(e)}
         print("Sending error:", error_message)  # Debug print
         return jsonify(error_message), 400
+
+#function to delete recipe from database
+@app.route('/delete_recipe/<int:recipe_id>', methods=['DELETE'])
+def delete_recipe(recipe_id):
+    try:
+        recipe = Recipes.query.get(recipe_id)
+        if recipe:
+            db.session.delete(recipe)
+            db.session.commit()
+            return jsonify({"message": "Recipe deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Recipe not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 
 # Function to register a user 
 @app.route('/register', methods=['POST'])
