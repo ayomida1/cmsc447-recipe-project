@@ -117,6 +117,42 @@ def add_recipe():
         print("Sending error:", error_message)  # Debug print
         return jsonify(error_message), 400
 
+# Function to register a user 
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    email = data['email']
+    
+    # Check if username or email already exists
+    if Users.query.filter_by(username=username).first() is not None:
+        return jsonify({'error': 'Username already exists'}), 400
+    if Users.query.filter_by(email=email).first() is not None:
+        return jsonify({'error': 'Email already exists'}), 400
+    
+    # Create new user
+    user = Users(username=username, email=email)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'message': 'User created successfully'}), 201
+
+# Function to log in user
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    
+    # Retrieve user from the database by username
+    user = Users.query.filter_by(user_name=username).first()
+    
+    if user is not None and user.check_password(password):
+        return jsonify({'message': 'Logged in successfully'}), 200
+    else:
+        return jsonify({'error': 'Invalid username or password'}), 401
+
 # Start the Flask app
 if __name__ == "__main__":
     with app.app_context():
