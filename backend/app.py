@@ -4,6 +4,7 @@ from flask_cors import CORS
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
 from werkzeug.security import generate_password_hash, check_password_hash
+#from search import searchRecipes
 
 # Initialize Flask app and configure CORS and database
 app = Flask(__name__)
@@ -66,6 +67,15 @@ def add_admin_user():
     else:
         print("Admin user already exists")
 
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query', '')  # Get the search term from query parameters
+    if query:
+        recipe_ids = searchRecipes(query)
+        return jsonify(recipe_ids)
+    else:
+        return jsonify([]), 400  # Bad request if no query provided
+    
 # Route to retrieve a recipe by ID
 @app.route('/recipes', methods=['GET'])
 def get_recipes():
