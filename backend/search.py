@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch
 
 # Info needs to be updated when switching elasticsearch free trial accounts
 client = Elasticsearch(
-  "https://12685a2fc8ff47f68a1300c263fe4f09.us-east4.gcp.elastic-cloud.com:443",
+  "https://612f0cebfed74d9fabc00f854e978a88.us-east4.gcp.elastic-cloud.com:443",
   api_key = ""
  )
 
@@ -13,8 +13,11 @@ def searchRecipes(query):
     # Define Elasticsearch query
     search = {
         "query": {
-            "match": {
-                "name": query
+            "prefix": {
+                "name": {
+                    "value": query,
+                    "case_insensitive": True, 
+                }                  
             }
         }
     }
