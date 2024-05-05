@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, make_response, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask import session
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
 from werkzeug.security import generate_password_hash, check_password_hash
