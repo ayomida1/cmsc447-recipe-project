@@ -150,20 +150,19 @@ def delete_recipe(recipe_id):
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    username = data['username']
-    password = data['password']
-    email = data['email']
+    new_user = Users(
+            user_name=data['username'],
+            user_pass=data['password'],
+            user_email=data['email'],
+    )
     
     # Check if username or email already exists
-    if Users.query.filter_by(username=username).first() is not None:
-        return jsonify({'error': 'Username already exists'}), 400
-    if Users.query.filter_by(email=email).first() is not None:
-        return jsonify({'error': 'Email already exists'}), 400
+    existing_user = Users.query.filter((Users.user_name == username) | (Users.user_email == email)).first()
+    if existing_user:
+        return jsonify({'error': 'Username or email already exists'}), 400
     
     # Create new user
-    user = Users(username=username, email=email)
-    user.set_password(password)
-    db.session.add(user)
+    db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
 
@@ -176,11 +175,20 @@ def login():
     
     # Retrieve user from the database by username
     user = Users.query.filter_by(user_name=username).first()
+
+    print("User:", user)
     
-    if user is not None and user.check_password(password):
+    if user is not None and user.user_pass == password:
         return jsonify({'message': 'Logged in successfully'}), 200
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
+
+# Function to log out user
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()  # clear the session
+
+    return jsonify({'message': 'Logged out successfully'}), 200
 
 # Start the Flask app
 if __name__ == "__main__":
