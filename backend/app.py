@@ -5,8 +5,7 @@ from flask import session
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
 from werkzeug.security import generate_password_hash, check_password_hash
-from search import indexRecipe #for elasticsearch indexing
-from search import searchRecipes
+from search import indexRecipe, searchRecipes, removeRecipe
 
 # Initialize Flask app and configure CORS and database
 app = Flask(__name__)
@@ -140,6 +139,7 @@ def delete_recipe(recipe_id):
         if recipe:
             db.session.delete(recipe)
             db.session.commit()
+            removeRecipe(str(recipe_id))
             return jsonify({"message": "Recipe deleted successfully"}), 200
         else:
             return jsonify({"error": "Recipe not found"}), 404
