@@ -22,7 +22,7 @@ function RecipeList({ onSelectRecipe, currentUser, onEdit }) {
     };
 
     return (
-        <div>
+        <div className="recipe-grid">
             {recipes.map(recipe => (
                 <RecipeCard key={recipe.id} recipe={recipe} onClick={handleRecipeClick} />
             ))}
@@ -31,7 +31,7 @@ function RecipeList({ onSelectRecipe, currentUser, onEdit }) {
                 recipe={selectedRecipe} 
                 onClose={handleCloseModal} 
                 currentUser={currentUser}
-                onEdit={onEdit}   // Pass currentUser to RecipeDetails
+                onEdit={onEdit}
                 />
             )}
         </div>

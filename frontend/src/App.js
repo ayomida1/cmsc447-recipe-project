@@ -72,7 +72,7 @@ function App() {
     };
 
     return (
-        <div>
+        <div className="App">
             <header>
                 <div className="authentication-info">
                     {currentUser ? `Logged in as: ${currentUser}` : 'Not logged in'}
@@ -90,14 +90,12 @@ function App() {
                     </div>
                 </div>
             </header>
-            <div className="main-content">
-                <RecipeList 
-                    recipes={recipes}
-                    onSelectRecipe={handleSelectRecipe} 
-                    currentUser={currentUser}
-                    onEdit={handleEditRecipe}  // Passing down the handleEditRecipe function
-            />
-            </div>           
+            <RecipeList 
+                recipes={recipes}
+                onSelectRecipe={handleSelectRecipe} 
+                currentUser={currentUser}
+                onEdit={handleEditRecipe}  // Passing down the handleEditRecipe function
+            />         
             {selectedRecipe && <RecipeDetails recipe={selectedRecipe} onClose={handleCloseModal} onDelete={handleDeleteRecipe} onEdit={handleEditRecipe} currentUser={currentUser} />}
             {showAddRecipeModal && <AddRecipe onAddRecipe={handleAddRecipe} onCancel={() => setShowAddRecipeModal(false)} isLoggedIn={!!currentUser} currentUser={currentUser} />}
             {showLogin && <LoginForm onClose={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />}

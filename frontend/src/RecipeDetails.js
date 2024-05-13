@@ -23,7 +23,7 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
             body: JSON.stringify({ username: currentUser })  // Send username in the request body
         }).then(response => {
             if (response.ok) {
-                
+
                 onClose(); // Close the modal after deletion
             } else {
                 alert('Failed to delete recipe');
@@ -67,11 +67,14 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
         });
     };
 
+    console.log("Image URL:", `/food_imgs/${recipe.recipe_img_name}`);
+
     return (
         <div className="modal-backdrop">
             <div className="modal-content">
                 {editMode ? (
                     <>
+                        <label>Recipe Name:</label>
                         <textarea
                             type="text"
                             name="name"
@@ -79,18 +82,21 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
                             onChange={handleChange}
                             required
                         />
+                        <label>Description:</label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
                             required
                         />
+                        <label>Ingredients:</label>
                         <textarea
                             name="ingredients"
                             value={formData.ingredients}
                             onChange={handleChange}
                             required
                         />
+                        <label>Instructions:</label>
                         <textarea
                             name="instructions"
                             value={formData.instructions}
@@ -101,16 +107,22 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
                         <button onClick={handleCancelEdit}>Cancel</button>
                     </>
                 ) : (
-                    <>
-                        <h2>{recipe.name}</h2>
-                        <p>{recipe.description}</p>
-                        <p>{recipe.ingredients}</p>
-                        <p>{recipe.instructions}</p>
+                    <>  
+                        <div>
                         <button onClick={handleEdit}>Edit Recipe</button>                        
                         <button onClick={onClose}>Close</button>
                         <button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>
                             Delete Recipe
                         </button>
+                        </div>                   
+                        <h2 align = "center">{recipe.name}</h2>
+                        {recipe.recipe_img_name && (
+                            <img src={`/food_imgs/${recipe.recipe_img_name}`} alt={recipe.name} />
+                        )}
+                        <p>{recipe.description}</p>
+                        <p>Ingredients: <br />{recipe.ingredients.split('\n').map((line, index) => (<span key={index}>{line}<br/></span>))}</p>
+                        <p>Instructions: {recipe.instructions}</p>
+                        
                     </>
                 )}
             </div>

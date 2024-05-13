@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import create_database, database_exists
 from werkzeug.security import generate_password_hash, check_password_hash
 from search import indexRecipe, searchRecipes, removeRecipe
+import csv
+from flask_migrate import Migrate
+
 
 # Initialize Flask app and configure CORS and database
 app = Flask(__name__)
@@ -14,6 +17,7 @@ app.secret_key = "secret"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:''@localhost/team1_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db) #migrates the new db if any columns existing tables are changed
 
 # Check and create database if not exists
 if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
@@ -38,10 +42,11 @@ class Users(db.Model):
 class Recipes(db.Model):
     recipe_id = db.Column(db.Integer, primary_key=True)
     recipe_name = db.Column(db.String(100))
-    recipe_description = db.Column(db.String(100))
-    recipe_ingredients = db.Column(db.String(100))
-    recipe_instructions = db.Column(db.String(100))
+    recipe_description = db.Column(db.String(1000))
+    recipe_ingredients = db.Column(db.String(1000))
+    recipe_instructions = db.Column(db.String(1000))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    recipe_img_name = db.Column(db.String(100))
 
 class Comments(db.Model):
     comment_id = db.Column(db.Integer, primary_key=True)
@@ -97,7 +102,8 @@ def get_recipes():
             "description": recipe.recipe_description,
             "ingredients": recipe.recipe_ingredients,
             "instructions": recipe.recipe_instructions,
-            "user_id": recipe.user_id
+            "user_id": recipe.user_id,
+            "recipe_img_name" : recipe.recipe_img_name
         } for recipe in recipes]
         return jsonify(recipes_data)
     except Exception as e:
@@ -236,9 +242,36 @@ def logout():
 
     return jsonify({'message': 'Logged out successfully'}), 200
 
+def populate_recipes():
+    if Recipes.query.count() == 0:
+        default_recipes = []
+        with open('food.csv', 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader)  # Skip header row if present
+            for row in reader:
+                if len(row) < 6:  # Ensure row has enough columns, adjust the index as needed
+                    continue
+                ingredients_field = row[5]  # Assuming ingredients are in the 6th column (index 5)
+                # Remove square brackets and split by ','
+                ingredients = ingredients_field.replace('[\'', '').replace(']', '').split("', '")
+                formatted_ingredients = "\n".join(f"- {item.strip()}" for item in ingredients)
+                recipe = Recipes(
+                    recipe_name=row[1],
+                    recipe_instructions=row[3],  # Adjust indices as necessary
+                    recipe_ingredients=formatted_ingredients,  # Use formatted ingredients
+                    recipe_img_name=row[4] + ".jpg",  # Image name from CSV
+                )
+                default_recipes.append(recipe)
+                if len(default_recipes) == 52:
+                    break
+        db.session.add_all(default_recipes)
+        db.session.commit()
+
+
 # Start the Flask app
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Create database tables
+        populate_recipes() # fill the db with recipes
         add_admin_user()  # Add an admin user
     app.run(debug=True)

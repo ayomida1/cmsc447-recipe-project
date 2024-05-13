@@ -3,7 +3,7 @@ import React from 'react';
 function RecipeCard({ recipe, onClick }) {
   return (
     <div className="recipe-card" onClick={() => onClick(recipe)}>
-      <img src={recipe.image || "placeholder_image_url"} alt={recipe.name} />
+      <img src={`/food_imgs/${recipe.recipe_img_name}`} alt={recipe.recipe_name} />
       <p>{recipe.name}</p>
     </div>
   );
