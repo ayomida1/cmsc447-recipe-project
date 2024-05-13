@@ -158,7 +158,7 @@ def register():
     )
     
     # Check if username or email already exists
-    existing_user = Users.query.filter((Users.user_name == username) | (Users.user_email == email)).first()
+    existing_user = Users.query.filter((Users.user_name == new_user.user_name) | (Users.user_email == new_user.user_email)).first()
     if existing_user:
         return jsonify({'error': 'Username or email already exists'}), 400
     

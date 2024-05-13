@@ -4,7 +4,7 @@ from elasticsearch import Elasticsearch
 # Info needs to be updated when switching elasticsearch free trial accounts
 client = Elasticsearch(
   "https://612f0cebfed74d9fabc00f854e978a88.us-east4.gcp.elastic-cloud.com:443",
-  api_key = ""
+  api_key = "UG1OOUs0OEJ5Vjk0NWZIeVFxd3Y6NmFCMEJpSDlRbldUeGNNdUVkZHdHQQ=="
  )
 
 # Performs search function. Takes in the search query and returns a list
