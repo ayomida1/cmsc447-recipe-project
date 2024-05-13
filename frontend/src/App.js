@@ -4,7 +4,7 @@ import RecipeList from './RecipeList';
 import RecipeDetails from './RecipeDetails';
 import SearchBar from './SearchBar';
 import AddRecipe from './AddRecipe';
-import LoginForm from './LoginForm';
+import LoginForm from './LoginForm'; 
 import RegisterForm from './RegisterForm';
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
     const [showAddRecipeModal, setShowAddRecipeModal] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [showRegister, setShowRegister] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(localStorage.getItem('username'));
 
     useEffect(() => {
         fetch('http://localhost:5000/recipes')
@@ -54,11 +54,13 @@ function App() {
     };
 
     const handleLoginSuccess = (username) => {
+        localStorage.setItem('username', username);
         setCurrentUser(username);
         setShowLogin(false);
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('username');
         setCurrentUser(null);
     };
 
