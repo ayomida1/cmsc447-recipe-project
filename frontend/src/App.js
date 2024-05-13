@@ -44,6 +44,13 @@ function App() {
         }
     };
 
+    const handleEditRecipe = updatedRecipe => {
+        const updatedRecipes = recipes.map(recipe =>
+            recipe.id === updatedRecipe.id ? updatedRecipe : recipe
+        );
+        setRecipes(updatedRecipes);
+    };
+
     const handleAddRecipe = newRecipe => {
         setShowAddRecipeModal(false);
         // Optionally add the recipe to the state if you want to display it immediately
@@ -84,10 +91,15 @@ function App() {
                 </div>
             </header>
             <div className="main-content">
-                <RecipeList recipes={recipes} onSelectRecipe={handleSelectRecipe} />
-            </div>
-            {selectedRecipe && <RecipeDetails recipe={selectedRecipe} onClose={handleCloseModal} onDelete={handleDeleteRecipe} />}
-            {showAddRecipeModal && <AddRecipe onAddRecipe={handleAddRecipe} onCancel={() => setShowAddRecipeModal(false)} />}
+                <RecipeList 
+                    recipes={recipes}
+                    onSelectRecipe={handleSelectRecipe} 
+                    currentUser={currentUser}
+                    onEdit={handleEditRecipe}  // Passing down the handleEditRecipe function
+            />
+            </div>           
+            {selectedRecipe && <RecipeDetails recipe={selectedRecipe} onClose={handleCloseModal} onDelete={handleDeleteRecipe} onEdit={handleEditRecipe} currentUser={currentUser} />}
+            {showAddRecipeModal && <AddRecipe onAddRecipe={handleAddRecipe} onCancel={() => setShowAddRecipeModal(false)} isLoggedIn={!!currentUser} currentUser={currentUser} />}
             {showLogin && <LoginForm onClose={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />}
             {showRegister && <RegisterForm onClose={() => setShowRegister(false)} />}
         </div>

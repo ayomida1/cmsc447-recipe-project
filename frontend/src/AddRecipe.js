@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function AddRecipe({ onAddRecipe, onCancel }) {
+function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -15,13 +15,26 @@ function AddRecipe({ onAddRecipe, onCancel }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        // Check if user is logged in before submitting
+        if (!isLoggedIn) {
+            alert('You must be logged in to add recipes!');
+            return;
+        }
+
+        const recipeData = {
+            ...formData,
+            username: currentUser  // Pass the username as part of the recipe data
+        };
+
         const response = await fetch('http://localhost:5000/add_recipe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(recipeData)
         });
         if (response.ok) {
-            onAddRecipe(formData);
+            const addedRecipe = await response.json(); // Assuming server sends back added recipe data
+            onAddRecipe(addedRecipe);
             setFormData({ name: '', description: '', ingredients: '', instructions: '' }); // Reset form
         } else {
             alert('Failed to add recipe');

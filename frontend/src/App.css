@@ -163,6 +163,7 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin: 2.5px;
 }
 
 button:hover {

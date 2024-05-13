@@ -42,7 +42,7 @@ class Recipes(db.Model):
     recipe_description = db.Column(db.String(100))
     recipe_ingredients = db.Column(db.String(100))
     recipe_instructions = db.Column(db.String(100))
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
 class Comments(db.Model):
     comment_id = db.Column(db.Integer, primary_key=True)
@@ -61,11 +61,11 @@ class RecipeTags(db.Model):
 
 # Function to add an admin user if not exists
 def add_admin_user():
-    if not Users.query.filter_by(user_id=0).first():  # Check if admin with user_id 0 exists
-        admin_user = Users(user_id=0, user_name="admin", user_pass="admin", user_email="admin@example.com", user_admin=True)
+    if not Users.query.filter_by(user_name="admin").first():  # Check if admin exists
+        admin_user = Users(user_id = 0, user_name="admin", user_pass="admin", user_email="admin@example.com", user_admin=True)
         db.session.add(admin_user)
         db.session.commit()
-        print("Admin user created with user_id 0")
+        print("Admin user created")
     else:
         print("Admin user already exists")
 
@@ -98,7 +98,7 @@ def get_recipes():
             "description": recipe.recipe_description,
             "ingredients": recipe.recipe_ingredients,
             "instructions": recipe.recipe_instructions,
-           # "user_id": recipe.user_id ADD BACK LATER
+            "user_id": recipe.user_id
         } for recipe in recipes]
         return jsonify(recipes_data)
     except Exception as e:
@@ -108,43 +108,84 @@ def get_recipes():
 @app.route('/add_recipe', methods=['POST'])
 def add_recipe():
     data = request.get_json()
-    print(data) #DELETE LATER
-    print("Received data:", data)  # Debug print
+    username = data.get('username')  # Get username from the data passed
+
+    if not username:
+        return jsonify({'error': 'You must be logged in to add recipes'}), 401
+
+    user = Users.query.filter_by(user_name=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
     try:
         new_recipe = Recipes(
             recipe_name=data['name'],
             recipe_description=data['description'],
             recipe_ingredients=data['ingredients'],
             recipe_instructions=data['instructions'],
-            # user_id=data['user_id']
+            user_id=user.user_id  # Use the user ID fetched from the database
         )
         db.session.add(new_recipe)
         db.session.commit()
-        response_data = {"message": "Recipe added successfully"}
-        print("Sending response:", response_data)  # Debug print
-
-        # Index the new recipe in Elasticsearch
         indexRecipe(str(new_recipe.recipe_id), new_recipe.recipe_name)
-
-        return jsonify(response_data), 201
+        return jsonify({"message": "Recipe added successfully"}), 201
     except Exception as e:
-        error_message = {"error": str(e)}
-        print("Sending error:", error_message)  # Debug print
-        return jsonify(error_message), 400
+        return jsonify({"error": str(e)}), 400
 
 #function to delete recipe from database
 @app.route('/delete_recipe/<int:recipe_id>', methods=['DELETE'])
 def delete_recipe(recipe_id):
+    data = request.get_json()  # Assuming username is passed in the body of the delete request
+    username = data.get('username')
+    if not username:
+        return jsonify({'error': 'You must be logged in to delete recipes'}), 401
+
+    user = Users.query.filter_by(user_name=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    recipe = Recipes.query.get(recipe_id)
+    if not recipe:
+        return jsonify({"error": "Recipe not found"}), 404
+
+    if recipe.user_id != user.user_id:
+        return jsonify({'error': 'Unauthorized to delete this recipe'}), 403
+
     try:
-        recipe = Recipes.query.get(recipe_id)
-        if recipe:
-            db.session.delete(recipe)
-            db.session.commit()
-            return jsonify({"message": "Recipe deleted successfully"}), 200
-        else:
-            return jsonify({"error": "Recipe not found"}), 404
+        db.session.delete(recipe)
+        db.session.commit()
+        return jsonify({"message": "Recipe deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+#Function to edit existing recipe
+@app.route('/update_recipe/<int:recipe_id>', methods=['PUT'])
+def update_recipe(recipe_id):
+    data = request.get_json()
+    username = data.get('username')
+    print("Username passed into updateRecipe:", username)
+    if not username:
+        return jsonify({'error': 'You must be logged in to update recipes'}), 401
+
+    user = Users.query.filter_by(user_name=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    recipe = Recipes.query.get(recipe_id)
+    if recipe.user_id != user.user_id:
+        return jsonify({'error': 'Unauthorized to edit this recipe'}), 403
+
+    try:
+        recipe.recipe_name = data.get('name', recipe.recipe_name)
+        recipe.recipe_description = data.get('description', recipe.recipe_description)
+        recipe.recipe_ingredients = data.get('ingredients', recipe.recipe_ingredients)
+        recipe.recipe_instructions = data.get('instructions', recipe.recipe_instructions)
+        db.session.commit()
+        return jsonify({"message": "Recipe updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 
 
 # Function to register a user 
