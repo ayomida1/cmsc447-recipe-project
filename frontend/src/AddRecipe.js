@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import Select from 'react-select'
 
 function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         ingredients: '',
-        instructions: ''
+        instructions: '',
+        tags: []
     });
 
     const handleChange = (event) => {
@@ -35,16 +37,28 @@ function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
         if (response.ok) {
             const addedRecipe = await response.json(); // Assuming server sends back added recipe data
             onAddRecipe(addedRecipe);
-            setFormData({ name: '', description: '', ingredients: '', instructions: '' }); // Reset form
+            setFormData({ name: '', description: '', ingredients: '', instructions: '' , tags: []}); // Reset form
         } else {
             alert('Failed to add recipe');
         }
     };
 
     const handleCancel = () => {
-        setFormData({ name: '', description: '', ingredients: '', instructions: '' }); // Reset form
+        setFormData({ name: '', description: '', ingredients: '', instructions: '', tags: []}); // Reset form
         onCancel(); // Call onCancel to hide the form
     };
+
+    const handleSelectChange = (selectedOptions) => {
+        // Extracting only values from selected options
+        const selectedTags = selectedOptions.map(option => option.value);
+        setFormData({ ...formData, tags: selectedTags });
+    };
+
+    const tags = [
+        { value: 'Breakfast', label: 'Breakfast' },
+        { value: 'Lunch', label: 'Lunch' },
+        { value: 'Dinner', label: 'Dinner' }
+      ]
 
     return (
         <form className="add-recipe-form" onSubmit={handleSubmit}>
@@ -65,7 +79,7 @@ function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
                 required
             />
             <textarea
-                name="ingredients"
+                name="ingredients" 
                 value={formData.ingredients}
                 onChange={handleChange}
                 placeholder="Ingredients"
@@ -78,7 +92,15 @@ function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
                 placeholder="Instructions"
                 required
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <label htmlFor="tags">Select Tags (Optional):</label>
+            <Select
+                name = "tags"
+                value={tags.filter(option => formData.tags.includes(option.value))}
+                onChange={handleSelectChange}
+                options={tags}
+                isMulti
+            />
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
                 <button type="submit">Add Recipe</button>
                 <button type="button" onClick={handleCancel} style={{ background: '#f44336', borderColor: '#f44336' }}>Cancel</button>
             </div>
