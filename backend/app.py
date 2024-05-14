@@ -45,6 +45,7 @@ class Recipes(db.Model):
     recipe_description = db.Column(db.String(1000))
     recipe_ingredients = db.Column(db.String(1000))
     recipe_instructions = db.Column(db.String(1000))
+    recipe_tags = db.Column(db.String(1000))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     recipe_img_name = db.Column(db.String(100))
 
@@ -52,15 +53,6 @@ class Comments(db.Model):
     comment_id = db.Column(db.Integer, primary_key=True)
     comment_content = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.recipe_id'))
-
-class Tags(db.Model):
-    tag_id = db.Column(db.Integer, primary_key=True)
-    tag_name = db.Column(db.String(100))
-
-class RecipeTags(db.Model):
-    recipeTag_id = db.Column(db.Integer, primary_key=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'))
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.recipe_id'))
 
 # Function to add an admin user if not exists
@@ -128,11 +120,12 @@ def add_recipe():
             recipe_description=data['description'],
             recipe_ingredients=data['ingredients'],
             recipe_instructions=data['instructions'],
+            recipe_tags=data['tags'],
             user_id=user.user_id  # Use the user ID fetched from the database
         )
         db.session.add(new_recipe)
         db.session.commit()
-        indexRecipe(str(new_recipe.recipe_id), new_recipe.recipe_name)
+        indexRecipe(str(new_recipe.recipe_id), new_recipe.recipe_name, new_recipe.recipe_tags)
         return jsonify({"message": "Recipe added successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400

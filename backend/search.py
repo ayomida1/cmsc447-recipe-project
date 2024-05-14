@@ -13,11 +13,25 @@ def searchRecipes(query):
     # Define Elasticsearch query
     search = {
         "query": {
-            "prefix": {
-                "name": {
-                    "value": query,
-                    "case_insensitive": True, 
-                }                  
+            "bool": {
+                "should": [
+                    {   
+                        "prefix": {
+                            "name": {
+                                "value": query,
+                                "case_insensitive": True
+                            }
+                        }
+                    },
+                    {
+                        "prefix": {
+                            "tags": {
+                                "value": query,
+                                "case_insensitive": True
+                            }
+                        }
+                    }
+                ]
             }
         }
     }
@@ -32,9 +46,10 @@ def searchRecipes(query):
 # Put a new recipe into the index, must be done for every new recipe added
 # to the database for elasticsearch to be able to find it.
 # Takes in ID and Name of the recipe
-def indexRecipe(recipeID, recipeName):
+def indexRecipe(recipeID, recipeName, tags):
     body = {
-        "name": recipeName
+        "name": recipeName,
+        "tags": tags
     }
     client.index(index = "recipes", id = recipeID, body = body)
     
