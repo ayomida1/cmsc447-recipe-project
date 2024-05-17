@@ -57,7 +57,9 @@ function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
     const tags = [
         { value: 'Breakfast', label: 'Breakfast' },
         { value: 'Lunch', label: 'Lunch' },
-        { value: 'Dinner', label: 'Dinner' }
+        { value: 'Dinner', label: 'Dinner' },
+        { value: 'Dessert', label: 'Dessert' },
+        { value: 'Snack', label: 'Snack' }
     ];
 
     return (

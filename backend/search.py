@@ -61,4 +61,4 @@ def removeRecipe(recipeID):
 # Removes every recipe currently inside the index by deleting the index
 # A new index gets made when a new recipe is inserted
 def clearIndex():
-    client.client.indices.delete(index = "recipes")
+    client.indices.delete(index = "recipes")
