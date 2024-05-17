@@ -22,15 +22,17 @@ function SearchBar({ onSelectRecipe }) {
     };
 
     return (
-        <div className="search-bar">
-            <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Enter search term..."
-            />
-            <button onClick={handleSearch}>Search</button>
+        <div className="search-container">
+            <div className="search-bar">
+                <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Enter search term..."
+                />
+                <button onClick={handleSearch}>Search</button>
+            </div>
             {results.length > 0 && (
                 <ul className="search-results">
                     {results.map(result => (

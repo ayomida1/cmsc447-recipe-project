@@ -44,9 +44,19 @@ function SavedRecipes({ currentUser, setSelectedRecipe }) {
     return (
         <div className="saved-recipes">
             {savedRecipes.length > 0 ? (
-                savedRecipes.map(recipe => (
-                    <RecipeCard key={recipe.id} recipe={recipe} onClick={() => handleRecipeClick(recipe)} />
-                ))
+                 <div className="recipe-grid">
+                 {savedRecipes.map(recipe => (
+                     <RecipeCard key={recipe.id} recipe={recipe} onClick={handleRecipeClick} />
+                 ))}
+                 {selectedRecipe && (
+                     <RecipeDetails 
+                         recipe={selectedRecipe} 
+                         onClose={handleCloseModal} 
+                         currentUser={currentUser}
+                         onEdit={() => {}}
+                     />
+                 )}
+             </div>
             ) : (
                 <p>No saved recipes to display.</p>
             )}

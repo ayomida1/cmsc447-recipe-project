@@ -42,11 +42,6 @@ header {
   margin: 0 20px; /* Adjust spacing around the Add Recipe button */
 }
 
-.search-bar {
-  flex-grow: 1;
-  display: flex;
-  justify-content: flex-end;
-}
 
 .main-content {
   display: flex;
@@ -160,16 +155,31 @@ header {
   margin-left: 20px; /* Adjust the value as needed */
 }
 
+.search-container {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%; /* Ensure the container takes full width */
+}
+
+.search-bar {
+  position: relative;
+  width: 100%; /* Adjust width as needed */
+  box-sizing: border-box;
+}
+
 .search-results {
   list-style: none;
   margin: 0;
   padding: 0;
   background: white;
   position: absolute;
-  width: calc(100% - 2px);
+  top: 100%; /* Position it below the search bar */
+  left: 0; /* Align to the left of the search bar */
+  width: %; /* Ensure the dropdown is the same width as the search bar */
   border: 1px solid #ccc;
   border-top: none;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1001;
 }
 
