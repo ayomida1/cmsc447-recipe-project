@@ -4,38 +4,57 @@ import RecipeDetails from './RecipeDetails';
 
 function SavedRecipes({ currentUser, setSelectedRecipe }) {
     const [savedRecipes, setSavedRecipes] = useState([]);
-    const [selectedRecipe, setSelectedRecipeLocal] = useState(null);
+    const [selectedRecipe, setSelectedRecipeState] = useState(null);
 
     useEffect(() => {
         if (currentUser) {
             fetch(`http://localhost:5000/saved_recipes?username=${currentUser}`)
                 .then(response => response.json())
-                .then(data => setSavedRecipes(data))
-                .catch(error => console.error('Error fetching saved recipes:', error));
+                .then(data => {
+                    // Ensure data is an array
+                    if (Array.isArray(data)) {
+                        setSavedRecipes(data);
+                    } else {
+                        setSavedRecipes([]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching saved recipes:', error);
+                    setSavedRecipes([]);
+                });
+        } else {
+            setSavedRecipes([]);
         }
     }, [currentUser]);
 
-    const handleRecipeClick = recipe => {
-        setSelectedRecipeLocal(recipe);
-        setSelectedRecipe(recipe); // Update the selected recipe in the parent component
+    const handleRecipeClick = (recipe) => {
+        setSelectedRecipe(recipe);
+        setSelectedRecipeState(recipe);
     };
 
     const handleCloseModal = () => {
-        setSelectedRecipeLocal(null);
-        setSelectedRecipe(null); // Update the selected recipe in the parent component
+        setSelectedRecipe(null);
+        setSelectedRecipeState(null);
     };
 
+    if (!currentUser) {
+        return <p>Please log in to view your saved recipes.</p>;
+    }
+
     return (
-        <div className="recipe-grid">
-            {savedRecipes.map(recipe => (
-                <RecipeCard key={recipe.id} recipe={recipe} onClick={handleRecipeClick} />
-            ))}
+        <div className="saved-recipes">
+            {savedRecipes.length > 0 ? (
+                savedRecipes.map(recipe => (
+                    <RecipeCard key={recipe.id} recipe={recipe} onClick={() => handleRecipeClick(recipe)} />
+                ))
+            ) : (
+                <p>No saved recipes to display.</p>
+            )}
             {selectedRecipe && (
                 <RecipeDetails 
                     recipe={selectedRecipe} 
                     onClose={handleCloseModal} 
-                    currentUser={currentUser}
-                    onEdit={() => {}}
+                    currentUser={currentUser} 
                 />
             )}
         </div>

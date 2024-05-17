@@ -3,8 +3,8 @@ from elasticsearch import Elasticsearch
 
 # Info needs to be updated when switching elasticsearch free trial accounts
 client = Elasticsearch(
-  "",
-  api_key = ""
+  "https://f8b079afb3584f8b897309ce8d32200e.us-east4.gcp.elastic-cloud.com:443",
+  api_key = "R3FQemg0OEJtX0FuOXNfOGZqZmk6UG5mWWMzWFVTNGVFSmsxOGV0SjlUZw=="
  )
 
 # Performs search function. Takes in the search query and returns a list

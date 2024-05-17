@@ -17,6 +17,23 @@ function App() {
     const [currentUser, setCurrentUser] = useState(localStorage.getItem('username'));
 
     useEffect(() => {
+        if (currentUser) {
+            // Check if the user exists in the backend
+            fetch(`http://localhost:5000/user_exists?username=${currentUser}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.exists) {
+                        // If the user does not exist, clear local storage and set currentUser to null
+                        localStorage.removeItem('username');
+                        setCurrentUser(null);
+                        setShowLogin(true); // Show login form
+                    }
+                })
+                .catch(error => console.error('Error checking user existence:', error));
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
         fetch('http://localhost:5000/recipes')
             .then(response => response.json())
             .then(setRecipes);

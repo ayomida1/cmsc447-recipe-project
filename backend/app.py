@@ -102,6 +102,20 @@ def get_recipes():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+#Function checks if logged if the currently logged user exists, fixes a major bug    
+@app.route('/user_exists', methods=['GET'])
+def user_exists():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'exists': False})
+
+    user = Users.query.filter_by(user_name=username).first()
+    if user:
+        return jsonify({'exists': True})
+    else:
+        return jsonify({'exists': False})
+
+
 # Route to add a new recipe
 @app.route('/add_recipe', methods=['POST'])
 def add_recipe():
@@ -302,12 +316,15 @@ def populate_recipes():
                     recipe_ingredients=formatted_ingredients,  # Use formatted ingredients
                     recipe_img_name=row[4] + ".jpg",  # Image name from CSV
                 )
-                indexRecipe(str(default_recipes.recipe_id), default_recipes.recipe_name, default_recipes.recipe_tags)
                 default_recipes.append(recipe)
                 if len(default_recipes) == 52:
                     break
         db.session.add_all(default_recipes)
         db.session.commit()
+
+        for recipe in default_recipes:
+            indexRecipe(str(recipe.recipe_id), recipe.recipe_name, recipe.recipe_tags)
+
 
 
 # Start the Flask app
