@@ -67,7 +67,29 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
         });
     };
 
-    console.log("Image URL:", `/food_imgs/${recipe.recipe_img_name}`);
+    const handleSaveRecipe = () => {
+        if (!currentUser) {
+            alert('You must be logged in to save recipes.');
+            return;
+        }
+    
+        fetch(`http://localhost:5000/save_recipe/${recipe.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: currentUser })  // Send username in the request body
+        }).then(response => {
+            if (response.ok) {
+                alert('Recipe saved successfully');
+            } else {
+                alert('Failed to save recipe');
+            }
+        }).catch(error => {
+            console.error('Error saving recipe:', error);
+            alert('Error saving recipe.');
+        });
+    };
 
     return (
         <div className="modal-backdrop">
@@ -114,6 +136,7 @@ function RecipeDetails({ recipe, onClose, onDelete, onEdit, currentUser }) {
                         <button onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>
                             Delete Recipe
                         </button>
+                        <button onClick={handleSaveRecipe}>Save Recipe</button>
                         </div>                   
                         <h2 align = "center">{recipe.name}</h2>
                         {recipe.recipe_img_name && (

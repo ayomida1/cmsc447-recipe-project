@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Select from 'react-select'
+import Select from 'react-select';
 
 function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
     const [formData, setFormData] = useState({
@@ -58,53 +58,57 @@ function AddRecipe({ onAddRecipe, onCancel, isLoggedIn, currentUser }) {
         { value: 'Breakfast', label: 'Breakfast' },
         { value: 'Lunch', label: 'Lunch' },
         { value: 'Dinner', label: 'Dinner' }
-      ]
+    ];
 
     return (
-        <form className="add-recipe-form" onSubmit={handleSubmit}>
-            <h2>Add a New Recipe</h2>
-            <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Recipe Name"
-                required
-            />
-            <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Description"
-                required
-            />
-            <textarea
-                name="ingredients" 
-                value={formData.ingredients}
-                onChange={handleChange}
-                placeholder="Ingredients"
-                required
-            />
-            <textarea
-                name="instructions"
-                value={formData.instructions}
-                onChange={handleChange}
-                placeholder="Instructions"
-                required
-            />
-            <label htmlFor="tags">Select Tags (Optional):</label>
-            <Select
-                name = "tags"
-                value={tags.filter(option => formData.tags.includes(option.value))}
-                onChange={handleSelectChange}
-                options={tags}
-                isMulti
-            />
-            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-                <button type="submit">Add Recipe</button>
-                <button type="button" onClick={handleCancel} style={{ background: '#f44336', borderColor: '#f44336' }}>Cancel</button>
+        <div className="modal">
+            <div className="modal-content">
+                <form className="add-recipe-form" onSubmit={handleSubmit}>
+                    <h2>Add a New Recipe</h2>
+                    <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Recipe Name"
+                        required
+                    />
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        placeholder="Description"
+                        required
+                    />
+                    <textarea
+                        name="ingredients" 
+                        value={formData.ingredients}
+                        onChange={handleChange}
+                        placeholder="Ingredients"
+                        required
+                    />
+                    <textarea
+                        name="instructions"
+                        value={formData.instructions}
+                        onChange={handleChange}
+                        placeholder="Instructions"
+                        required
+                    />
+                    <label htmlFor="tags">Select Tags (Optional):</label>
+                    <Select
+                        name="tags"
+                        value={tags.filter(option => formData.tags.includes(option.value))}
+                        onChange={handleSelectChange}
+                        options={tags}
+                        isMulti
+                    />
+                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                        <button type="submit">Add Recipe</button>
+                        <button type="button" onClick={handleCancel} style={{ background: '#f44336', borderColor: '#f44336' }}>Cancel</button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     );
 }
 

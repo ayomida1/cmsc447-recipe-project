@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import AddRecipe from './AddRecipe';
 import LoginForm from './LoginForm'; 
 import RegisterForm from './RegisterForm';
+import SavedRecipes from './SavedRecipes';
 
 function App() {
     const [recipes, setRecipes] = useState([]);
@@ -97,9 +98,19 @@ function App() {
                 onEdit={handleEditRecipe}  // Passing down the handleEditRecipe function
             />         
             {selectedRecipe && <RecipeDetails recipe={selectedRecipe} onClose={handleCloseModal} onDelete={handleDeleteRecipe} onEdit={handleEditRecipe} currentUser={currentUser} />}
-            {showAddRecipeModal && <AddRecipe onAddRecipe={handleAddRecipe} onCancel={() => setShowAddRecipeModal(false)} isLoggedIn={!!currentUser} currentUser={currentUser} />}
+            {showAddRecipeModal && <AddRecipe 
+                onAddRecipe={handleAddRecipe} 
+                onCancel={() => setShowAddRecipeModal(false)} 
+                isLoggedIn={!!currentUser} 
+                currentUser={currentUser} 
+            />}
             {showLogin && <LoginForm onClose={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />}
             {showRegister && <RegisterForm onClose={() => setShowRegister(false)} />}
+            {currentUser && <h2 className="saved-recipes-header"> {currentUser}'s Saved Recipes</h2>}
+            <SavedRecipes 
+                currentUser={currentUser} 
+                setSelectedRecipe={setSelectedRecipe}  // Pass the setter function
+            />
         </div>
     );
 }

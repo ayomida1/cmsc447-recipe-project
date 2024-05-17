@@ -5,6 +5,7 @@ import RecipeDetails from './RecipeDetails';
 function RecipeList({ onSelectRecipe, currentUser, onEdit }) {
     const [recipes, setRecipes] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         fetch('http://localhost:5000/recipes')
@@ -21,18 +22,34 @@ function RecipeList({ onSelectRecipe, currentUser, onEdit }) {
         setSelectedRecipe(null);
     };
 
+    const toggleShowAll = () => {
+        setShowAll(!showAll);
+    };
+
+    // Determine the number of recipes to display
+    const recipesToDisplay = showAll ? recipes : recipes.slice(0, 8); // Adjust 6 to the number of recipes per row
+
     return (
-        <div className="recipe-grid">
-            {recipes.map(recipe => (
-                <RecipeCard key={recipe.id} recipe={recipe} onClick={handleRecipeClick} />
-            ))}
-            {selectedRecipe && (
-                <RecipeDetails 
-                recipe={selectedRecipe} 
-                onClose={handleCloseModal} 
-                currentUser={currentUser}
-                onEdit={onEdit}
-                />
+        <div>
+            <div className="recipe-grid">
+                {recipesToDisplay.map(recipe => (
+                    <RecipeCard key={recipe.id} recipe={recipe} onClick={handleRecipeClick} />
+                ))}
+                {selectedRecipe && (
+                    <RecipeDetails 
+                        recipe={selectedRecipe} 
+                        onClose={handleCloseModal} 
+                        currentUser={currentUser}
+                        onEdit={onEdit}
+                    />
+                )}
+            </div>
+            {recipes.length > 6 && (
+                <div className="show-more-container">
+                    <button className="show-more-button" onClick={toggleShowAll}>
+                        {showAll ? 'Show Less ▲' : 'Show More ▼'}
+                    </button>
+                </div>
             )}
         </div>
     );

@@ -30,6 +30,7 @@ class Users(db.Model):
     user_pass = db.Column(db.String(100))
     user_email = db.Column(db.String(100))
     user_admin = db.Column(db.Boolean, default=False)
+    saved_recipes = db.Column(db.String(1000), default='') 
 
     # Function to set password
     def set_password(self, password):
@@ -120,7 +121,7 @@ def add_recipe():
             recipe_description=data['description'],
             recipe_ingredients=data['ingredients'],
             recipe_instructions=data['instructions'],
-            recipe_tags=data['tags'],
+            recipe_tags=','.join(data['tags']),  # Assuming tags are sent as a list
             user_id=user.user_id  # Use the user ID fetched from the database
         )
         db.session.add(new_recipe)
@@ -235,6 +236,53 @@ def logout():
 
     return jsonify({'message': 'Logged out successfully'}), 200
 
+#Function to save a recipe
+@app.route('/save_recipe/<int:recipe_id>', methods=['POST'])
+def save_recipe(recipe_id):
+    data = request.get_json()
+    username = data.get('username')
+    if not username:
+        return jsonify({'error': 'You must be logged in to save recipes'}), 401
+
+    user = Users.query.filter_by(user_name=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    saved_recipes = user.saved_recipes.split(',')
+    if str(recipe_id) not in saved_recipes:
+        saved_recipes.append(str(recipe_id))
+        user.saved_recipes = ','.join(saved_recipes)
+        db.session.commit()
+
+    return jsonify({"message": "Recipe saved successfully"}), 200
+
+
+# Function to fetch saved recipes
+@app.route('/saved_recipes', methods=['GET'])
+def get_saved_recipes():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'You must be logged in to view saved recipes'}), 401
+
+    user = Users.query.filter_by(user_name=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    saved_recipes_ids = user.saved_recipes.split(',')
+    saved_recipes = Recipes.query.filter(Recipes.recipe_id.in_(saved_recipes_ids)).all()
+
+    recipes_data = [{
+        "id": recipe.recipe_id,
+        "name": recipe.recipe_name,
+        "description": recipe.recipe_description,
+        "ingredients": recipe.recipe_ingredients,
+        "instructions": recipe.recipe_instructions,
+        "user_id": recipe.user_id,
+        "recipe_img_name": recipe.recipe_img_name
+    } for recipe in saved_recipes]
+
+    return jsonify(recipes_data)
+
 def populate_recipes():
     if Recipes.query.count() == 0:
         default_recipes = []
@@ -254,6 +302,7 @@ def populate_recipes():
                     recipe_ingredients=formatted_ingredients,  # Use formatted ingredients
                     recipe_img_name=row[4] + ".jpg",  # Image name from CSV
                 )
+                indexRecipe(str(default_recipes.recipe_id), default_recipes.recipe_name, default_recipes.recipe_tags)
                 default_recipes.append(recipe)
                 if len(default_recipes) == 52:
                     break
