@@ -316,16 +316,14 @@ def populate_recipes():
                     recipe_ingredients=formatted_ingredients,  # Use formatted ingredients
                     recipe_img_name=row[4] + ".jpg",  # Image name from CSV
                 )
-                indexRecipe("", recipe.recipe_name, recipe.recipe_tags)
                 default_recipes.append(recipe)
                 if len(default_recipes) == 52:
                     break
         db.session.add_all(default_recipes)
         db.session.commit()
-
         
-
-
+        for recipe in default_recipes:
+            indexRecipe(str(recipe.recipe_id), recipe.recipe_name, recipe.recipe_tags)
 
 # Start the Flask app
 if __name__ == "__main__":

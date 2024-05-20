@@ -11,6 +11,7 @@ client = Elasticsearch(
 # of recipe ids found by elasticsearch.
 def searchRecipes(query):
     # Define Elasticsearch query
+    query = query.lower()  
     search = {
         "query": {
             "bool": {
@@ -30,7 +31,12 @@ def searchRecipes(query):
                                 "case_insensitive": True
                             }
                         }
-                    }
+                    },  
+                    {
+                        "match_phrase": {
+                            "name": query
+                        }
+                    }                  
                 ]
             }
         }
@@ -41,6 +47,7 @@ def searchRecipes(query):
     
     # Extract and return matching recipe ids
     matches = [hit['_id'] for hit in results['hits']['hits']]
+    print(matches)
     return matches
 
 # Put a new recipe into the index, must be done for every new recipe added
@@ -48,7 +55,7 @@ def searchRecipes(query):
 # Takes in ID and Name of the recipe
 def indexRecipe(recipeID, recipeName, tags):
     body = {
-        "name": recipeName,
+        "name": recipeName.lower(),
         "tags": tags
     }
     client.index(index = "recipes", id = recipeID, body = body)
